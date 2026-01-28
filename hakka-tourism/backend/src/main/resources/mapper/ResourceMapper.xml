@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hakka.tour.mapper.ResourceMapper">
+
+    <resultMap id="BaseResultMap" type="com.hakka.tour.entity.Resource">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="region" property="region"/>
+        <result column="type" property="type"/>
+        <result column="theme" property="theme"/>
+        <result column="description" property="description"/>
+        <result column="address" property="address"/>
+        <result column="score" property="score"/>
+        <result column="hot_count" property="hotCount"/>
+        <result column="price" property="price"/>
+        <result column="images" property="images"/>
+        <result column="tags" property="tags"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.hakka.tour.entity.Resource" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO resource (name, region, type, theme, description, address, score, hot_count, price, images, tags, create_time, update_time)
+        VALUES (#{name}, #{region}, #{type}, #{theme}, #{description}, #{address}, #{score}, #{hotCount}, #{price}, #{images}, #{tags}, #{createTime}, #{updateTime})
+    </insert>
+
+    <update id="update" parameterType="com.hakka.tour.entity.Resource">
+        UPDATE resource
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="region != null">region = #{region},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="theme != null">theme = #{theme},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="score != null">score = #{score},</if>
+            <if test="hotCount != null">hot_count = #{hotCount},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="images != null">images = #{images},</if>
+            <if test="tags != null">tags = #{tags},</if>
+            update_time = #{updateTime}
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM resource WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT * FROM resource WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT * FROM resource ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByCondition" parameterType="map" resultMap="BaseResultMap">
+        SELECT * FROM resource
+        <where>
+            <if test="region != null and region != ''">AND region LIKE CONCAT('%', #{region}, '%')</if>
+            <if test="type != null and type != ''">AND type = #{type}</if>
+            <if test="theme != null and theme != ''">AND theme LIKE CONCAT('%', #{theme}, '%')</if>
+            <if test="keyword != null and keyword != ''">
+                AND (name LIKE CONCAT('%', #{keyword}, '%') OR description LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="minPrice != null">AND price &gt;= #{minPrice}</if>
+            <if test="maxPrice != null">AND price &lt;= #{maxPrice}</if>
+        </where>
+        <choose>
+            <when test="sortBy != null and sortBy == 'hot'">ORDER BY hot_count DESC</when>
+            <when test="sortBy != null and sortBy == 'score'">ORDER BY score DESC</when>
+            <otherwise>ORDER BY create_time DESC</otherwise>
+        </choose>
+    </select>
+
+    <update id="incrementHotCount" parameterType="java.lang.Long">
+        UPDATE resource SET hot_count = hot_count + 1 WHERE id = #{id}
+    </update>
+
+    <update id="updateScore">
+        UPDATE resource SET score = #{score} WHERE id = #{id}
+    </update>
+
+</mapper>
