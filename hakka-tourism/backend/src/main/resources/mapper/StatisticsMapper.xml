@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hakka.tour.mapper.StatisticsMapper">
+
+    <resultMap id="BaseResultMap" type="com.hakka.tour.entity.Statistics">
+        <id column="id" property="id"/>
+        <result column="statistic_type" property="statisticType"/>
+        <result column="statistic_value" property="statisticValue"/>
+        <result column="record_date" property="recordDate"/>
+        <result column="remarks" property="remarks"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.hakka.tour.entity.Statistics">
+        INSERT INTO statistics (statistic_type, statistic_value, record_date, remarks)
+        VALUES (#{statisticType}, #{statisticValue}, #{recordDate}, #{remarks})
+    </insert>
+
+    <update id="update" parameterType="com.hakka.tour.entity.Statistics">
+        UPDATE statistics
+        <set>
+            <if test="statisticValue != null">statistic_value = #{statisticValue},</if>
+            <if test="remarks != null">remarks = #{remarks},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectByTypeAndDate" resultMap="BaseResultMap">
+        SELECT * FROM statistics WHERE statistic_type = #{statisticType} AND record_date = #{recordDate}
+    </select>
+
+    <select id="selectStatisticsByType" resultType="map">
+        SELECT record_date as date, statistic_value as value
+        FROM statistics
+        WHERE statistic_type = #{statisticType}
+        ORDER BY record_date DESC
+        LIMIT 30
+    </select>
+
+    <select id="selectAllStatistics" resultType="map">
+        SELECT * FROM statistics ORDER BY record_date DESC
+    </select>
+
+    <update id="incrementValue">
+        UPDATE statistics
+        SET statistic_value = statistic_value + 1
+        WHERE statistic_type = #{statisticType} AND record_date = #{recordDate}
+    </update>
+
+</mapper>
